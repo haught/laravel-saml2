@@ -1,6 +1,6 @@
-## Laravel 5 - Saml2
+## Laravel 8+ - Saml2
 
-[![Build Status](https://travis-ci.org/aacotroneo/laravel-saml2.svg)](https://travis-ci.org/aacotroneo/laravel-saml2)
+[![Build Status](https://travis-ci.org/haught/laravel-saml2.svg)](https://travis-ci.org/haught/laravel-saml2)
 
 A Laravel package for Saml2 integration as a SP (service provider) based on  [OneLogin](https://github.com/onelogin/php-saml) toolkit, which is much lighter and easier to install than simplesamlphp SP. It doesn't need separate routes or session storage to work!
 
@@ -11,13 +11,13 @@ The aim of this library is to be as simple as possible. We won't mess with Larav
 You can install the package via composer:
 
 ```
-composer require aacotroneo/laravel-saml2
+composer require haught/laravel-saml2
 ```
 Or manually add this to your composer.json:
 
 **composer.json**
 ```json
-"aacotroneo/laravel-saml2": "*"
+"haught/laravel-saml2": "*"
 ```
 
 If you are using Laravel 5.5 and up, the service provider will automatically get registered.
@@ -28,11 +28,11 @@ For older versions of Laravel (<5.5), you have to add the service provider:
 ```php
 'providers' => [
         ...
-    	Aacotroneo\Saml2\Saml2ServiceProvider::class,
+    	Haught\Saml2\Saml2ServiceProvider::class,
 ]
 ```
 
-Then publish the config files with `php artisan vendor:publish --provider="Aacotroneo\Saml2\Saml2ServiceProvider"`. This will add the files `app/config/saml2_settings.php` & `app/config/saml2/mytestidp1_idp_settings.php`, which you will need to customize.
+Then publish the config files with `php artisan vendor:publish --provider="Haught\Saml2\Saml2ServiceProvider"`. This will add the files `app/config/saml2_settings.php` & `app/config/saml2/mytestidp1_idp_settings.php`, which you will need to customize.
 
 The `mytestidp1_idp_settings.php` config is handled almost directly by  [OneLogin](https://github.com/onelogin/php-saml) so you should refer to that for full details, but we'll cover here what's really necessary. There are some other config about routes you may want to check, they are pretty strightforward.
 
@@ -52,7 +52,7 @@ You will need to create a separate configuration file for each IDP under `app/co
 
 Configuration options are not explained in this project as they come from the [OneLogin project](https://github.com/onelogin/php-saml), please refer there for details.
 
-The only real difference between this config and the one that OneLogin uses, is that the SP `entityId`, `assertionConsumerService` URL and `singleLogoutService` URL are injected by the library. 
+The only real difference between this config and the one that OneLogin uses, is that the SP `entityId`, `assertionConsumerService` URL and `singleLogoutService` URL are injected by the library.
 
 If you don't specify URLs in the corresponding IDP config optional values, this library provides defaults values. The library creates the `metadata`, `acs`, and `sls` routes for each IDP. If you specify different values in the config, note that the `acs` and `sls` URLs should correspond to actual routes that you set up that are directed to the corresponding Saml2Controller function.
 
@@ -97,7 +97,7 @@ $metadata['http(s)://{laravel_url}/mytestidp1/metadata'] = array(
     'SingleLogoutService' => 'http(s)://{laravel_url}/mytestidp1/sls',
     //the following two affect what the $Saml2user->getUserId() will return
     'NameIDFormat' => 'urn:oasis:names:tc:SAML:2.0:nameid-format:persistent',
-    'simplesaml.nameidattribute' => 'uid' 
+    'simplesaml.nameidattribute' => 'uid'
 );
 ```
 
@@ -146,7 +146,7 @@ protected function unauthenticated($request, AuthenticationException $exception)
 }
 ```
 
-For login requests that come through redirects to the login route, `{routesPrefix}/mytestidp1/login`, the default login call does not pass a redirect URL to the Saml login request. That login argument is useful because the ACS handler can gets that value (passed back from the IDP as RelayPath) and by default will redirect there. To pass the redirect URL from the controller login, extend the Saml2Controller class and implement your own `login()` function. Set the `config/saml2_settings.php` value `saml2_controller` to be your extended class so that the routes will direct requests to your controller instead of the default.  
+For login requests that come through redirects to the login route, `{routesPrefix}/mytestidp1/login`, the default login call does not pass a redirect URL to the Saml login request. That login argument is useful because the ACS handler can gets that value (passed back from the IDP as RelayPath) and by default will redirect there. To pass the redirect URL from the controller login, extend the Saml2Controller class and implement your own `login()` function. Set the `config/saml2_settings.php` value `saml2_controller` to be your extended class so that the routes will direct requests to your controller instead of the default.
 
 For example, it can be:
 
@@ -156,7 +156,7 @@ For example, it can be:
 ```
 **App/Http/Controllers/MyNamespace/MySaml2Controller.php**
 ```php
-use Aacotroneo\Saml2\Http\Controllers\Saml2Controller;
+use Haught\Saml2\Http\Controllers\Saml2Controller;
 
 class MySaml2Controller extends Saml2Controller
 {
@@ -174,7 +174,7 @@ For example, it can be:
 
 **App/Providers/MyEventServiceProvider.php**
 ```php
-Event::listen('Aacotroneo\Saml2\Events\Saml2LoginEvent', function (Saml2LoginEvent $event) {
+Event::listen('Haught\Saml2\Events\Saml2LoginEvent', function (Saml2LoginEvent $event) {
     $messageId = $event->getSaml2Auth()->getLastMessageId();
     // Add your own code preventing reuse of a $messageId to stop replay attacks
 
@@ -226,7 +226,7 @@ Now there are two ways the user can log out.
 
 For case 1, call `Saml2Auth::logout();` or redirect the user to the logout route, e.g. `mytestidp1_logout` which does just that. Do not close the session immediately as you need to receive a response confirmation from the IDP (redirection). That response will be handled by the library at `/mytestidp1/sls` and will fire an event for you to complete the operation.
 
-For case 2, you will only receive the event. Both cases 1 and 2 receive the same event. 
+For case 2, you will only receive the event. Both cases 1 and 2 receive the same event.
 
 
 Note that for case 2, you may have to manually save your session to make the logout stick (as the session is saved by middleware, but the OneLogin library will redirect back to your IDP before that happens)
@@ -235,7 +235,7 @@ For example, it can be:
 
 **App/Providers/MyEventServiceProvider.php**
 ```php
-Event::listen('Aacotroneo\Saml2\Events\Saml2LogoutEvent', function ($event) {
+Event::listen('Haught\Saml2\Events\Saml2LogoutEvent', function ($event) {
     Auth::logout();
     Session::save();
 });

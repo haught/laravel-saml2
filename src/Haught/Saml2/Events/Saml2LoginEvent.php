@@ -1,9 +1,9 @@
 <?php
 
-namespace Aacotroneo\Saml2\Events;
+namespace Haught\Saml2\Events;
 
-use Aacotroneo\Saml2\Saml2User;
-use Aacotroneo\Saml2\Saml2Auth;
+use Haught\Saml2\Saml2User;
+use Haught\Saml2\Saml2Auth;
 
 class Saml2LoginEvent extends Saml2Event {
 

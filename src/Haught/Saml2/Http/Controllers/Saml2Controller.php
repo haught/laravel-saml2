@@ -1,9 +1,9 @@
 <?php
 
-namespace Aacotroneo\Saml2\Http\Controllers;
+namespace Haught\Saml2\Http\Controllers;
 
-use Aacotroneo\Saml2\Events\Saml2LoginEvent;
-use Aacotroneo\Saml2\Saml2Auth;
+use Haught\Saml2\Events\Saml2LoginEvent;
+use Haught\Saml2\Saml2Auth;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
 

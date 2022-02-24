@@ -1,6 +1,6 @@
 <?php
 
-namespace Aacotroneo\Saml2\Events;
+namespace Haught\Saml2\Events;
 
 class Saml2LogoutEvent extends Saml2Event {
 

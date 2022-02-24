@@ -1,5 +1,5 @@
 <?php
-namespace Aacotroneo\Saml2;
+namespace Haught\Saml2;
 
 use OneLogin\Saml2\Utils as OneLogin_Saml2_Utils;
 use Illuminate\Support\ServiceProvider;

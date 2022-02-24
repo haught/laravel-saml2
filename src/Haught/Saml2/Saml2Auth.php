@@ -1,10 +1,10 @@
 <?php
 
-namespace Aacotroneo\Saml2;
+namespace Haught\Saml2;
 
 use OneLogin\Saml2\Auth as OneLogin_Saml2_Auth;
 use OneLogin\Saml2\Error as OneLogin_Saml2_Error;
-use Aacotroneo\Saml2\Events\Saml2LogoutEvent;
+use Haught\Saml2\Events\Saml2LogoutEvent;
 
 use Log;
 use Psr\Log\InvalidArgumentException;
@@ -28,7 +28,7 @@ class Saml2Auth
     /**
      * Load the IDP config file and construct a OneLogin\Saml2\Auth (aliased here as OneLogin_Saml2_Auth).
      * Pass the returned value to the Saml2Auth constructor.
-     * 
+     *
      * @param string    $idpName        The target IDP name, must correspond to config file 'config/saml2/${idpName}_idp_settings.php'
      * @return OneLogin_Saml2_Auth Contructed OneLogin Saml2 configuration of the requested IDP
      * @throws \InvalidArgumentException if $idpName is empty
@@ -224,7 +224,7 @@ class Saml2Auth
         return $this->auth->getLastErrorReason();
     }
 
-    
+
     protected static function extractPkeyFromFile($path) {
         $res = openssl_get_privatekey($path);
         if (empty($res)) {
