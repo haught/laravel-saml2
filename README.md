@@ -1,6 +1,6 @@
 ## Laravel 8+ - Saml2
 
-[![Build Status](https://travis-ci.org/haught/laravel-saml2.svg)](https://travis-ci.org/haught/laravel-saml2)
+This is a fork of [aacotroneo/laravel-saml2](https://github.com/aacotroneo/laravel-saml2/).
 
 A Laravel package for Saml2 integration as a SP (service provider) based on  [OneLogin](https://github.com/onelogin/php-saml) toolkit, which is much lighter and easier to install than simplesamlphp SP. It doesn't need separate routes or session storage to work!
 
@@ -20,17 +20,7 @@ Or manually add this to your composer.json:
 "haught/laravel-saml2": "*"
 ```
 
-If you are using Laravel 5.5 and up, the service provider will automatically get registered.
-
-For older versions of Laravel (<5.5), you have to add the service provider:
-
-**config/app.php**
-```php
-'providers' => [
-        ...
-    	Haught\Saml2\Saml2ServiceProvider::class,
-]
-```
+The service provider will automatically get registered.
 
 Then publish the config files with `php artisan vendor:publish --provider="Haught\Saml2\Saml2ServiceProvider"`. This will add the files `app/config/saml2_settings.php` & `app/config/saml2/mytestidp1_idp_settings.php`, which you will need to customize.
 
@@ -199,9 +189,9 @@ For example, it can be:
 ```php
 protected $middlewareGroups = [
         'web' => [
-	    ...
-	],
-	'api' => [
+            ...
+        ],
+        'api' => [
             ...
         ],
         'saml' => [
