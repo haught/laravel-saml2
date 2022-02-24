@@ -1,6 +1,6 @@
 <?php
 
-namespace Aacotroneo\Saml2;
+namespace Haught\Saml2;
 
 
 use App;
@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 class Saml2AuthServiceProviderTest extends TestCase
 {
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         m::close();
     }
@@ -25,4 +25,3 @@ class Saml2AuthServiceProviderTest extends TestCase
     }
 
 }
- 

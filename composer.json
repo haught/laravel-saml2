@@ -22,7 +22,7 @@
     "require": {
         "php": ">=7.3",
         "ext-openssl": "*",
-        "illuminate/support": ">=8.0.0",
+        "laravel/framework": ">=8.0.0",
         "onelogin/php-saml": ">=4.0"
     },
     "require-dev": {

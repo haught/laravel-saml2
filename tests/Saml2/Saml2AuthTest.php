@@ -1,6 +1,6 @@
 <?php
 
-namespace Aacotroneo\Saml2;
+namespace Haught\Saml2;
 
 
 use App;
@@ -11,7 +11,7 @@ class Saml2AuthTest extends TestCase
 {
 
 
-    public function tearDown()
+    public function tearDown(): void
     {
         m::close();
     }
@@ -182,7 +182,7 @@ class Saml2AuthTest extends TestCase
 
 //        $app = m::mock('Illuminate\Contracts\Foundation\Application[register,setDeferredServices]');
 //
-//        $s = m::mock('Aacotroneo\Saml2\Saml2ServiceProvider[publishes]', array($app));
+//        $s = m::mock('Haught\Saml2\Saml2ServiceProvider[publishes]', array($app));
 //        $s->boot();
 //        $s->shouldReceive('publishes');
 //
