@@ -3,7 +3,7 @@
 Route::middleware(config('saml2_settings.routesMiddleware'))
 ->prefix(config('saml2_settings.routesPrefix').'/')->group(function() {
     Route::prefix('{idpName}')->group(function() {
-	$saml2_controller = config('saml2_settings.saml2_controller', 'Aacotroneo\Saml2\Http\Controllers\Saml2Controller');
+	$saml2_controller = config('saml2_settings.saml2_controller', 'Haught\Saml2\Http\Controllers\Saml2Controller');
 
         Route::get('/logout', array(
             'as' => 'saml2_logout',
