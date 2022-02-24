@@ -6,9 +6,62 @@ use Haught\Saml2\Events\Saml2LoginEvent;
 use Haught\Saml2\Saml2Auth;
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Redirect;
+use App\Providers\RouteServiceProvider;
 
 class Saml2Controller extends Controller
 {
+
+    protected $saml2Auth;
+    protected $idp;
+
+    /**
+     * Add needed superglobals for php-saml that swoole does not provide
+     *
+     * @param Request $request
+     *
+     * @return void
+     */
+    private function setRequest(Request $request)
+    {
+        $_POST['SAMLResponse'] = array_key_exists('SAMLResponse', $request->post()) ? $request->post()['SAMLResponse'] : null;
+        $_GET['SAMLResponse'] = array_key_exists('SAMLResponse', $request->query()) ? $request->query()['SAMLResponse'] : null;
+        $_GET['SAMLRequest'] = array_key_exists('SAMLRequest', $request->query()) ? $request->query()['SAMLRequest'] : null;
+        $_GET['RelayState'] = array_key_exists('RelayState', $request->query()) ? $request->query()['RelayState'] : null;
+        $_GET['Signature'] = array_key_exists('Signature', $request->query()) ? $request->query()['Signature'] : null;
+        $_REQUEST['RelayState'] = array_key_exists('RelayState', $request->all()) ? $request->all()['RelayState'] : null;
+        if (!empty($request->server->get('HTTP_X_FORWARDED_PROTO'))) {
+            $_SERVER['HTTP_X_FORWARDED_PROTO'] = $request->server->get('HTTP_X_FORWARDED_PROTO');
+        }
+        if (!empty($request->server->get('HTTP_X_FORWARDED_HOST'))) {
+            $_SERVER['HTTP_X_FORWARDED_HOST'] = $request->server->get('HTTP_X_FORWARDED_HOST');
+        } else {
+            $_SERVER['HTTP_HOST'] = parse_url(config('app.url'), PHP_URL_HOST);
+        }
+    }
+
+    /**
+     * Remove superglobals that were needed for php-saml that swoole does not provide
+     *
+     *
+     * @return void
+     */
+    private function unsetRequest()
+    {
+        unset(
+            $_POST['SAMLResponse'],
+            $_GET['SAMLResponse'],
+            $_GET['SAMLRequest'],
+            $_GET['RelayState'],
+            $_GET['Signature'],
+            $_REQUEST['RelayState'],
+            $_SERVER['HTTP_X_FORWARDED_PROTO'],
+            $_SERVER['HTTP_X_FORWARDED_HOST'],
+            $_SERVER['HTTP_HOST'],
+        );
+    }
+
     /**
      * Generate local sp metadata.
      *
@@ -28,10 +81,12 @@ class Saml2Controller extends Controller
      *
      * @param Saml2Auth $saml2Auth
      * @param $idpName
+     * @param Request $request
      * @return \Illuminate\Http\Response
      */
-    public function acs(Saml2Auth $saml2Auth, $idpName)
+    public function acs(Saml2Auth $saml2Auth, $idpName, Request $request)
     {
+        $this->setRequest($request);
         $errors = $saml2Auth->acs();
 
         if (!empty($errors)) {
@@ -47,6 +102,8 @@ class Saml2Controller extends Controller
         event(new Saml2LoginEvent($idpName, $user, $saml2Auth));
 
         $redirectUrl = $user->getIntendedUrl();
+
+        $this->unsetRequest();
 
         if ($redirectUrl !== null) {
             return redirect($redirectUrl);
@@ -65,8 +122,9 @@ class Saml2Controller extends Controller
      * @param $idpName
      * @return \Illuminate\Http\Response
      */
-    public function sls(Saml2Auth $saml2Auth, $idpName)
+    public function sls(Saml2Auth $saml2Auth, $idpName, Request $request)
     {
+        $this->setRequest($request);
         $errors = $saml2Auth->sls($idpName, config('saml2_settings.retrieveParametersFromServer'));
         if (!empty($errors)) {
             logger()->error('Saml2 error', $errors);
@@ -74,31 +132,45 @@ class Saml2Controller extends Controller
             throw new \Exception("Could not log out");
         }
 
-        return redirect(config('saml2_settings.logoutRoute')); //may be set a configurable default
+        $this->unsetRequest();
+
+        return redirect(config('saml2_settings.logoutRoute')); //may be
+
     }
 
     /**
-     * Initiate a logout request across all the SSO infrastructure.
+     * This initiates a logout request across all the SSO infrastructure.
      *
      * @param Saml2Auth $saml2Auth
      * @param Request $request
      */
     public function logout(Saml2Auth $saml2Auth, Request $request)
     {
+        $this->setRequest($request);
         $returnTo = $request->query('returnTo');
         $sessionIndex = $request->query('sessionIndex');
         $nameId = $request->query('nameId');
-        $saml2Auth->logout($returnTo, $nameId, $sessionIndex); //will actually end up in the sls endpoint
-        //does not return
+        // swoole can't handle exit() or headers(), manually redirect via laravel
+        $redirectTo = $saml2Auth->logout($returnTo, $nameId, $sessionIndex, null, true);
+        $this->unsetRequest();
+        Log::debug('SAML Logout request received');
+        \Auth::logout();
+        return redirect($redirectTo);
     }
 
     /**
-     * Initiate a login request.
+     * This initiates a login request
      *
      * @param Saml2Auth $saml2Auth
+     * @param Request $request
      */
-    public function login(Saml2Auth $saml2Auth)
+    public function login(Saml2Auth $saml2Auth, Request $request)
     {
-        $saml2Auth->login(config('saml2_settings.loginRoute'));
+        $this->setRequest($request);
+        // swoole can't handle exit() or headers(), manually redirect via laravel
+        $redirectTo = $saml2Auth->login(Redirect::intended(RouteServiceProvider::HOME)->getTargetUrl(), [], false, false, true);
+        $this->unsetRequest();
+        Log::debug('SAML Login request received');
+        return redirect($redirectTo);
     }
 }
