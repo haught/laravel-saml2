@@ -1,5 +1,5 @@
 {
-    "name": "aacotroneo/laravel-saml2",
+    "name": "haught/laravel-saml2",
     "description": "A Laravel package for Saml2 integration as a SP (service provider) for multiple IdPs, based on OneLogin toolkit which is much more lightweight than simplesamlphp.",
     "keywords": ["laravel","saml", "saml2", "onelogin"],
     "homepage": "https://github.com/haught/laravel-saml2",
