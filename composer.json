@@ -4,7 +4,7 @@
     "keywords": ["laravel","saml", "saml2", "onelogin"],
     "homepage": "https://github.com/haught/laravel-saml2",
     "license": "MIT",
-    "version": "3.0.1",
+    "version": "3.0.2",
     "authors": [
         {
             "name": "haught",
@@ -20,10 +20,10 @@
         }
     ],
     "require": {
-        "php": ">=7.3",
+        "php": ">=8.0",
         "ext-openssl": "*",
         "laravel/framework": ">=8.0.0",
-        "onelogin/php-saml": ">=4.0"
+        "onelogin/php-saml": ">=4.1"
     },
     "require-dev": {
         "mockery/mockery": "~1.5",
